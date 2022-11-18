@@ -14,7 +14,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 
 const { chains, provider } = configureChains(
-  [chain.localhost],
+  [chain.hardhat],
   [
     // alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }),
     // jsonRpcProvider({ rpc: () => ({ http: "https://rpc.ankr.com/gnosis" }) }), //<<<< New RPC Provider
@@ -28,7 +28,7 @@ const { connectors } = getDefaultWallets({
 });
 
 const wagmiClient = createClient({
-  autoConnect: false,
+  autoConnect: true,
   connectors,
   provider,
 });
@@ -54,4 +54,7 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+// export default MyApp;
+export default dynamic(() => Promise.resolve(MyApp), {
+  ssr: false,
+});

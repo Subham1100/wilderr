@@ -1,1138 +1,249 @@
+import React, { useEffect, useState } from "react";
+import { chakra, shouldForwardProp } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import {
+  Container,
+  Text,
+  Flex,
+  Box,
+  Heading,
+  Spacer,
+  Button,
+  Center,
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  keyframes,
+  ChakraProvider,
+} from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useContractRead } from "wagmi";
+import { useAccount } from "wagmi";
+import {
+  useContractRead,
+  usePrepareContractWrite,
+  useContractWrite,
+} from "wagmi";
+import Image from "next/image";
+import wilderr from "./logo/wilderr2.png";
+import contract_config from "./contractData/contractConfig";
+// import styles from "./css/index.module.css";
+// import Register from "./components/Register";
+import dynamic from "next/dynamic";
+// import Dao from "./Dao";
+const Register = dynamic(() => import("./Register"), { ssr: false });
+const Dao = dynamic(() => import("./Dao"), { ssr: false });
+const BookEvent = dynamic(() => import("./BookEvent"), { ssr: false });
+const Host = dynamic(() => import("./Host"), { ssr: false });
+const Proof = dynamic(() => import("./Proof"), { ssr: false });
+const NFT = dynamic(() => import("./NFT"), { ssr: false });
+const animationKeyframes = keyframes`
+  0% { transform: scale(1) rotate(-5); border-radius: 20%;  }
+  10% { transform: scale(1) rotate(5); border-radius: 20%;  }
+  20% { transform: scale(1) rotate(-5); border-radius: 20%;  }
+  30% { transform: scale(1) rotate(5deg); border-radius: 20%;  }
+  50% { transform: scale(1) rotate(-5deg); border-radius: 20%;  }
+  60% { transform: scale(1) rotate(5deg); border-radius: 20%;  }
+  75% { transform: scale(1) rotate(-5deg); border-radius: 20%; }
+  100% { transform: scale(1) rotate(0);  border-radius: 20%; }
+`;
+//yo
+const animation = `${animationKeyframes} 2s ease-in-out infinite`;
 
-export default function Home() {
-  const { address, isConnecting, isDisconnected } = useAccount();
-  console.log(address);
-  console.log("connecting", isConnecting);
-  console.log("disconnected", isDisconnected);
-  const { data: contract } = useContractRead({
-    address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    abi: [
-      {
-        inputs: [
-          {
-            internalType: "address[]",
-            name: "_Dao_member_array",
-            type: "address[]",
-          },
-        ],
-        stateMutability: "nonpayable",
-        type: "constructor",
-      },
-      {
-        inputs: [],
-        name: "ALREADY_VOTED",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "DAO_MEMBER_ALREADY",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "DEADLINE_BREACHED",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "INVALID_CANDIDATE",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "INVALID_PROPOSAL",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "INVALID_STATUS",
-        type: "error",
-      },
-      {
-        inputs: [],
-        name: "NOT_DAO_MEMBER",
-        type: "error",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "approved",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "Approval",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "operator",
-            type: "address",
-          },
-          {
-            indexed: false,
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-        ],
-        name: "ApprovalForAll",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "Transfer",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "participant",
-            type: "address",
-          },
-        ],
-        name: "event_booked",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "host",
-            type: "address",
-          },
-        ],
-        name: "event_proposed",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "host",
-            type: "address",
-          },
-        ],
-        name: "event_registered",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "participant",
-            type: "address",
-          },
-        ],
-        name: "proof_submitted",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "participant",
-            type: "address",
-          },
-        ],
-        name: "verified_participant",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            indexed: true,
-            internalType: "bool",
-            name: "vote",
-            type: "bool",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "voter",
-            type: "address",
-          },
-        ],
-        name: "voted_for_event",
-        type: "event",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        name: "DAO_Proposals",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "id",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "candidate",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "deadline",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "votesUp",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "votesDown",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "countConducted",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "passed",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        name: "DAO_membership_status_mapping",
-        outputs: [
-          {
-            internalType: "enum n2e.DAO_membership_status",
-            name: "",
-            type: "uint8",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "approve",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-        ],
-        name: "balanceOf",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "checkCountVoteEligibilty",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "_user",
-            type: "address",
-          },
-        ],
-        name: "checkDAO_MembershipStatus",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "id",
-            type: "uint256",
-          },
-        ],
-        name: "countVotes",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        name: "event_proposals",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "id",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "name",
-            type: "string",
-          },
-          {
-            internalType: "address",
-            name: "host",
-            type: "address",
-          },
-          {
-            internalType: "string",
-            name: "uri",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "maxAudience",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "currentAudienceCount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "deadline",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "eventTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "votesUp",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "votesDown",
-            type: "uint256",
-          },
-          {
-            internalType: "enum n2e.proposal_status",
-            name: "status",
-            type: "uint8",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "getApproved",
-        outputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "getEventDetails",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "enum n2e.proposal_status",
-            name: "",
-            type: "uint8",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-        ],
-        name: "getParticipantInfo",
-        outputs: [
-          {
-            components: [
-              {
-                internalType: "bool",
-                name: "registerdForEvent",
-                type: "bool",
-              },
-              {
-                internalType: "string",
-                name: "participant_uri",
-                type: "string",
-              },
-              {
-                internalType: "string",
-                name: "proof",
-                type: "string",
-              },
-              {
-                internalType: "bool",
-                name: "eligible",
-                type: "bool",
-              },
-            ],
-            internalType: "struct n2e.metadataOf_participant",
-            name: "",
-            type: "tuple",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "member",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "hasVoted",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "operator",
-            type: "address",
-          },
-        ],
-        name: "isApprovedForAll",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "isDeadlineCrossed",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "isEventNotOver",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "_id",
-            type: "uint256",
-          },
-        ],
-        name: "make_DAO_member",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-        ],
-        name: "mintNft",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "name",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "nextProposal",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "next_event_proposal",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "nftId",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "ownerOf",
-        outputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "",
-            type: "address",
-          },
-        ],
-        name: "participant_info",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "registerdForEvent",
-            type: "bool",
-          },
-          {
-            internalType: "string",
-            name: "participant_uri",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "proof",
-            type: "string",
-          },
-          {
-            internalType: "bool",
-            name: "eligible",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "string",
-            name: "_uri",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "secondsLeftForEvent",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "eventName",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "_maxAudience",
-            type: "uint256",
-          },
-        ],
-        name: "registerEvent",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "uri",
-            type: "string",
-          },
-        ],
-        name: "registerForEvent",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "uri",
-            type: "string",
-          },
-        ],
-        name: "registerForEvent_withoutWorldcoin",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "_candidate",
-            type: "address",
-          },
-        ],
-        name: "registerInDAO",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "safeTransferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-          {
-            internalType: "bytes",
-            name: "data",
-            type: "bytes",
-          },
-        ],
-        name: "safeTransferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "operator",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-        ],
-        name: "setApprovalForAll",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "uri",
-            type: "string",
-          },
-        ],
-        name: "submitProof",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "bytes4",
-            name: "interfaceId",
-            type: "bytes4",
-          },
-        ],
-        name: "supportsInterface",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "symbol",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "tokenURI",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "totalDaoMembers",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-        ],
-        name: "transferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "eventId",
-            type: "uint256",
-          },
-          {
-            internalType: "address[]",
-            name: "participant_array",
-            type: "address[]",
-          },
-        ],
-        name: "verifyParticipants",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "_proposalId",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "_vote",
-            type: "bool",
-          },
-        ],
-        name: "voteForDaoMembership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "id",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "_vote",
-            type: "bool",
-          },
-        ],
-        name: "voteForEvent",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
-    functionName: "next_event_proposal",
-  });
-  console.log(contract);
+function App() {
+  const { address, isConnected } = useAccount();
   return (
-    <div>
-      <ConnectButton />
-    </div>
+    <Box
+      bgGradient="linear(to-r, #D3AB9F, #F4ECBE)"
+      // className={styles.container}
+      // w="1440px"
+      // h="1024px"
+      w="100%"
+      h="100vh"
+      pl="100px"
+      pr="100px"
+    >
+      <Flex
+        justifyContent="space-between"
+        marginBottom="10"
+        borderBottom="3px"
+        borderColor="black"
+      >
+        <Box
+          mx="100px"
+          h="130px"
+          w="230px"
+          boxShadow="2px solid black"
+          margin="10px 10px"
+        >
+          <Image w="100%" h="100%px" src={wilderr}></Image>
+        </Box>
+        <Text
+          fontWeight="bold"
+          bgGradient="linear(to-r,cyan.400,blue.500,purple.600)"
+          textAlign="center"
+          fontSize="80px"
+          bgClip="text"
+          borderRadius="10%"
+          m={(20, 10)}
+          letterSpacing="4px"
+        >
+          Wilderr
+        </Text>
+        <Box borderRadius="22%" h="40px" boxShadow="dark-lg" margin="1rem">
+          <ConnectButton />
+        </Box>
+      </Flex>
+      <Tabs
+        variant="solid-rounded"
+        size="lg"
+        colorScheme="purple"
+        align="center"
+      >
+        <TabList
+          bg="#DEC3BA"
+          w="30%"
+          borderRadius="15%"
+          display="flex"
+          flexDir="column"
+          marginRight="auto"
+          padding="20px"
+          boxShadow="dark-lg"
+          p="10"
+        >
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            Home
+          </Tab>
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            Events
+          </Tab>
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            DAO
+          </Tab>
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            Host
+          </Tab>
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            Submit proof
+          </Tab>
+          <Tab _hover={{ animation: animation }} fontWeight="bold">
+            Mint NFT
+          </Tab>
+          {/* <Tab fontWeight="bold</Tab> */}
+        </TabList>
+        <TabPanels>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <Heading marginTop="4rem" fontFamily="cursive">
+              Rewarding people for connecting with nature
+            </Heading>
+            <Text textAlign="center" width="100%" marginTop="4rem">
+              Nature-to-Earn (N2E) is a purpose-driven token that rewards people
+              for getting out into nature. We believe that connecting with
+              nature pushes people to take better care of nature. By having N2E
+              validators facilitate nature events (e.g. hikes, mushroom forays,
+              beach cleanups, etc), we can verify people's participation in
+              nature events & reward them accordingly{" "}
+            </Text>
+          </TabPanel>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <Register user={address} />
+          </TabPanel>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            pl="140px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <Dao user={address}></Dao>
+          </TabPanel>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            pl="230px"
+            pt="50px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <Host user={address}></Host>
+          </TabPanel>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            pl="230px"
+            pt="50px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <Proof user={address}></Proof>
+          </TabPanel>
+          <TabPanel
+            w="68%"
+            minH="550px"
+            marginLeft="auto"
+            my="-450"
+            bg="#DEC3BA"
+            borderRadius="10%"
+            display="flex"
+            flexDir="column"
+            padding="20px"
+            pl="230px"
+            pt="50px"
+            boxShadow="dark-lg"
+            p="10"
+          >
+            <NFT user={address}></NFT>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 }
+
+export default App;
